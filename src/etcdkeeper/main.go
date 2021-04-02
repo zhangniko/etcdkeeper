@@ -565,6 +565,7 @@ func connect(w http.ResponseWriter, r *http.Request) {
 	uname := r.FormValue("uname")
 	passwd := r.FormValue("passwd")
 
+	log.Println("params: ", host, uname, passwd)
 	if *useAuth {
 		if _, ok := rootUsers[host]; !ok && uname != "root" { // no root user
 			b, _ := json.Marshal(map[string]interface{}{"status": "root"})
@@ -606,7 +607,9 @@ func connect(w http.ResponseWriter, r *http.Request) {
 		rootUsers[host] = uinfo
 	}
 	log.Println(r.Method, "v3", "connect success.")
+	log.Println("getting info from host")
 	info := getInfo(host)
+	log.Println("finish to get info.")
 	log.Println(host, info)
 	b, _ := json.Marshal(map[string]interface{}{"status": "running", "info": info})
 	log.Println(string(b))
@@ -1033,6 +1036,7 @@ func getPermissionPrefix(host, uname, key string) ([][]string, error) {
 func getInfo(host string) map[string]string {
 	info := make(map[string]string)
 	uinfo := rootUsers[host]
+	log.Println("root users and info: ", rootUsers, uinfo)
 	rootClient, err := newClient(uinfo)
 	if err != nil {
 		log.Println(err)
@@ -1041,10 +1045,12 @@ func getInfo(host string) map[string]string {
 	defer rootClient.Close()
 
 	status, err := rootClient.Status(context.Background(), host)
+	log.Println("root client status: ", status, err)
 	if err != nil {
 		log.Fatal(err)
 	}
 	mems, err := rootClient.MemberList(context.Background())
+	log.Println("member list: ", mems, err)
 	if err != nil {
 		log.Fatal(err)
 	}
