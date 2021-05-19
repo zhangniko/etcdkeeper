@@ -142,6 +142,13 @@ func connectV2(w http.ResponseWriter, r *http.Request) {
 	host := strings.TrimSpace(r.FormValue("host"))
 	uname := r.FormValue("uname")
 	passwd := r.FormValue("passwd")
+
+	envHost, ok := os.LookupEnv("ETCD_ENDPOINT")
+	log.Println("ETCD_ENDPOINT: ", envHost)
+	if ok && host == "127.0.0.1:2379" {
+		host = envHost
+	}
+
 	if !strings.HasPrefix(host, "http") {
 		host = "http://" + host
 	}
@@ -564,6 +571,12 @@ func connect(w http.ResponseWriter, r *http.Request) {
 	host := r.FormValue("host")
 	uname := r.FormValue("uname")
 	passwd := r.FormValue("passwd")
+
+	envHost, ok := os.LookupEnv("ETCD_ENDPOINT")
+	log.Println("ETCD_ENDPOINT: ", envHost)
+	if ok && host == "127.0.0.1:2379" {
+		host = envHost
+	}
 
 	log.Println("params: ", host, uname, passwd)
 	if *useAuth {
